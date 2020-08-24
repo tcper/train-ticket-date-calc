@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from "react";
+import zhCN from "antd/es/locale/zh_CN";
+
 import {
   Form,
   Select,
@@ -11,68 +13,108 @@ import {
   Typography,
   Space,
   Divider,
-} from 'antd';
-import './App.less';
+  ConfigProvider,
+  Calendar,
+  Row,
+  Col,
+} from "antd";
+import moment from "moment";
+import "./App.less";
+import "moment/locale/zh-cn";
 
 const { Option } = Select;
 const { Title } = Typography;
 
-const App = () => (
-  <>
-    <section style={{ textAlign: 'center', marginTop: 48, marginBottom: 40 }}>
-      <Space align="start">
-        <img
-          style={{width: 40, height: 40 }}
-          src="https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg"
-          alt="Ant Design"
-        />
-        <Title level={2} style={{ marginBottom: 0 }}>
-          Ant Design
-        </Title>
-      </Space>
-    </section>
-    <Divider style={{ marginBottom: 60 }}>Form</Divider>
-    <Form labelCol={{ span: 8 }} wrapperCol={{ span: 8 }}>
-      <Form.Item label="数字输入框">
-        <InputNumber min={1} max={10} defaultValue={3} />
-        <span className="ant-form-text"> 台机器</span>
-        <a href="https://ant.design">链接文字</a>
-      </Form.Item>
-      <Form.Item label="开关">
-        <Switch defaultChecked />
-      </Form.Item>
-      <Form.Item label="滑动输入条">
-        <Slider defaultValue={70} />
-      </Form.Item>
-      <Form.Item label="选择器">
-        <Select defaultValue="lucy" style={{ width: 192 }}>
-          <Option value="jack">jack</Option>
-          <Option value="lucy">lucy</Option>
-          <Option value="disabled" disabled>disabled</Option>
-          <Option value="yiminghe">yiminghe</Option>
-        </Select>
-      </Form.Item>
-      <Form.Item label="日期选择框">
-        <DatePicker />
-      </Form.Item>
-      <Form.Item label="日期范围选择框">
-        <DatePicker.RangePicker />
-      </Form.Item>
-      <Form.Item label="评分">
-        <Rate defaultValue={5} />
-      </Form.Item>
-      <Form.Item wrapperCol={{ span: 8, offset: 8 }}>
-        <Space>
-          <Button type="primary" htmlType="submit">
-            Submit
-          </Button>
-          <Button>
-            Cancel
-          </Button>
+moment.locale("zh-cn");
+
+const App = () => {
+  const [time, setTime] = useState(30);
+  const [start, setStart] = useState(moment());
+  const [target, setTarget] = useState("");
+
+  const calc = () => {
+    const copy = moment(start);
+    const t = copy.subtract(time, "days").format("LL");
+    setTarget(t);
+  };
+
+  useEffect(() => {
+    calc();
+  }, []);
+
+  useEffect(() => {
+    calc();
+  }, [start, time]);
+
+  return (
+    <ConfigProvider locale={zhCN}>
+      <section style={{ textAlign: "center", marginTop: 48, marginBottom: 40 }}>
+        <Space align="start">
+          <Title level={2} style={{ marginBottom: 0 }}>
+            火车票时间计算
+          </Title>
         </Space>
-      </Form.Item>
-    </Form>
-  </>
-);
+      </section>
+      <Divider style={{ marginBottom: 60 }}></Divider>
+      <Form labelCol={{ span: 8 }} wrapperCol={{ span: 8 }}>
+        <Form.Item label="预售时间">
+          <Space>
+            <InputNumber
+              onChange={(v) => setTime(v)}
+              min={1}
+              max={100}
+              defaultValue={30}
+            />
+            <Button type="primary" onClick={() => setTime(30)}>
+              正常(30天)
+            </Button>
+            <Button type="primary" onClick={() => setTime(90)}>
+              过年(90天)
+            </Button>
+          </Space>
+        </Form.Item>
+
+        <Row>
+          <Col span={8} style={{ textAlign: "right" }}>
+            <span>选择出发日期：</span>
+          </Col>
+          <Col span={8}>
+            <div className="site-calendar-demo-card">
+              <Calendar
+                onChange={(date) => {
+                  setStart(date);
+                }}
+                fullscreen={false}
+                defaultValue={moment()}
+              />
+            </div>
+          </Col>
+        </Row>
+
+        <Form.Item label="你应该在" style={{ marginTop: 20 }}>
+          <Space>
+            <Title level={2} style={{ color: "#f00", marginBottom: 0 }}>
+              {target}
+            </Title>
+            <span>买票</span>
+          </Space>
+        </Form.Item>
+
+        {/*<Form.Item label="日期范围选择框">
+        <DatePicker.RangePicker />
+      </Form.Item>*/}
+
+        {/*<Form.Item wrapperCol={{ span: 8, offset: 8 }}>
+          <Space>
+            <Button type="primary" htmlType="submit">
+              Submit
+            </Button>
+            <Button>Cancel</Button>
+          </Space>
+        </Form.Item>*/}
+      </Form>
+    </ConfigProvider>
+  );
+};
 
 export default App;
